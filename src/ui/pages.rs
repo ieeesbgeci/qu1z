@@ -1,9 +1,9 @@
 use tui::{
     backend::Backend,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
@@ -44,11 +44,23 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
     let title_divs = Layout::default()
         .constraints([
             Constraint::Percentage(10),
-            Constraint::Percentage(10),
+            Constraint::Percentage(8),
             Constraint::Percentage(10),
             Constraint::Min(4),
         ])
         .split(div);
+    f.render_widget(
+        Block::default().borders(Borders::difference(Borders::ALL, Borders::BOTTOM)),
+        title_divs[0],
+    );
+    f.render_widget(
+        Block::default().borders(Borders::union(Borders::LEFT, Borders::RIGHT)),
+        title_divs[1],
+    );
+    f.render_widget(
+        Block::default().borders(Borders::difference(Borders::ALL, Borders::TOP)),
+        title_divs[2],
+    );
     //Title
     let style = Style::default()
         .fg(Color::Blue)
@@ -74,11 +86,48 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
         .constraints([Constraint::Ratio(1, 2), Constraint::Min(2)])
         .split(title_divs[3]);
     let btm_style = Style::default().fg(Color::Green);
-    let login_span = Span::styled("Student Login", btm_style);
+
+    // login -----
+
+    let login_style = Style::default().fg(Color::LightRed);
+    let login_span = Span::styled("< Student Login  >", btm_style);
     let login_blk = Block::default().title(login_span).borders(Borders::ALL);
     f.render_widget(login_blk, bottom_divs[0]);
+    let login_div = Layout::default()
+        .constraints([
+            Constraint::Percentage(30),
+            Constraint::Percentage(20),
+            Constraint::Percentage(10),
+            Constraint::Percentage(20),
+            Constraint::Length(5),
+        ])
+        .horizontal_margin(5)
+        .split(bottom_divs[0]);
+    let uname_block = Block::default()
+        .title(Span::styled("{ uname  }", login_style))
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded);
+    let sec_key_block = Block::default()
+        .title(Span::styled("{ key  }", login_style))
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded);
+    let login_title = Paragraph::new("Enter username and Key {  } to login")
+        .block(Block::default().borders(Borders::NONE))
+        .alignment(Alignment::Center)
+        .style(login_style);
+    f.render_widget(
+        login_title,
+        login_div[0].inner(&Margin {
+            horizontal: 0,
+            vertical: 2,
+        }),
+    );
+    f.render_widget(uname_block, login_div[1]);
+    f.render_widget(sec_key_block, login_div[3]);
+    //guidelines -----
+
     let guide_vec = App::get_guidelines();
-    let guide_title = Span::styled("GuideLines", btm_style);
+    let guide_title = Span::styled("< GuideLines  >", btm_style);
     let guide_blk = Block::default().title(guide_title).borders(Borders::ALL);
     f.render_widget(guide_blk, bottom_divs[1]);
     let guide_spans = guide_vec
@@ -91,7 +140,7 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
             Paragraph::new(s)
                 .block(Block::default().borders(Borders::NONE))
                 .alignment(Alignment::Left)
-                .wrap(Wrap { trim: false })
+            // .wrap(Wrap { trim: false })
         })
         .collect::<Vec<Paragraph>>();
     let guide_area = GuideLinesDiv(
@@ -110,7 +159,7 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
                 Constraint::Percentage(8),
                 Constraint::Percentage(7),
                 Constraint::Percentage(8),
-                Constraint::Percentage(7),
+                Constraint::Length(13),
             ])
             .split(bottom_divs[1]),
     )
