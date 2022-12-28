@@ -50,7 +50,7 @@ impl From<&AppState> for usize {
         }
     }
 }
-impl From<&AppState> for String {
+impl From<&AppState> for &'static str {
     fn from(state: &AppState) -> Self {
         use AppState::*;
         match state {
@@ -88,14 +88,14 @@ impl<'a> App<'a> {
         };
         self.app_state = AppState::from(req_page);
     }
-    pub fn get_guidelines() -> Vec<String> {
+    pub fn get_guidelines() -> Vec<&'static str> {
         vec![
-            "Use h,l or ArrowKeys to navigate btw tabs".into(),
-            "All Students should use their real name as Username".into(),
-            "Participants are requested to enter secret key recieved while registering in web platform"
-                .into(),
-            "Participants are requested to avoid malpractices".into(),
-            "Submissions with malpractices will be dealt seriously".into(),
+            " Use h,l or ArrowKeys to navigate btw tabs",
+            " All Students should use their real name as Username",
+            " Participants are requested to enter secret key",
+            "  while registering in web platform",
+            " Participants are requested to avoid malpractices",
+            " Submissions with malpractices will be dealt seriously",
         ]
     }
 }
