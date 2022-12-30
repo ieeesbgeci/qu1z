@@ -4,6 +4,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+use crate::app::models::Question;
+
 use super::pages::{explore_ui, home_ui, qu1z_ui};
 use crossbeam_channel::bounded;
 use crossterm::event::{self, Event, KeyCode};
@@ -12,23 +14,29 @@ use tui::{
     layout::{Constraint, Layout},
     style::{Color, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, Tabs},
+    widgets::{Block, Borders, ListState, Tabs},
     Frame, Terminal,
 };
 
 #[derive(Debug)]
-pub struct App<'a> {
-    user: User<'a>,
-    app_state: AppState,
+pub struct App<'a, 'q>
+where
+    'a: 'q,
+{
+    pub user: User<'a>,
+    pub qn: Option<&'q Question>,
+    pub app_state: AppState,
+    pub sel_state: ListState,
 }
 
 #[derive(Debug)]
-struct User<'a> {
-    name: &'a str,
+pub struct User<'a> {
+    pub name: &'a str,
+    key: Option<&'a str>,
 }
 
-#[derive(Debug)]
-enum AppState {
+#[derive(Debug, PartialEq, Eq)]
+pub enum AppState {
     Home,
     Qu1z,
     Explore,
@@ -38,6 +46,8 @@ enum AppState {
 enum InputDirection {
     Left,
     Right,
+    Up,
+    Down,
 }
 
 impl From<&AppState> for usize {
@@ -50,6 +60,7 @@ impl From<&AppState> for usize {
         }
     }
 }
+
 impl From<&AppState> for &'static str {
     fn from(state: &AppState) -> Self {
         use AppState::*;
@@ -71,11 +82,13 @@ impl From<usize> for AppState {
     }
 }
 
-impl<'a> App<'a> {
+impl<'a, 'q> App<'a, 'q> {
     pub fn new(name: &'a str) -> Self {
         App {
-            user: User { name },
+            user: User { name, key: None },
+            qn: None,
             app_state: AppState::Home,
+            sel_state: ListState::default(),
         }
     }
     pub fn change_state(&mut self, input: InputDirection) {
@@ -85,8 +98,28 @@ impl<'a> App<'a> {
             Left if cur_page > 0 => cur_page - 1,
             Left => 2,
             Right => (cur_page + 1) % 3,
+            _ => cur_page,
         };
         self.app_state = AppState::from(req_page);
+        self.sel_state.select(None);
+    }
+    pub fn set_opt(&mut self, input: InputDirection) {
+        match self.sel_state.selected() {
+            Some(cur_opt) => {
+                use InputDirection::*;
+                let req_opt: usize = match input {
+                    Up if cur_opt > 0 => cur_opt - 1,
+                    Down => (cur_opt + 1) % 4,
+                    UP => 3,
+                    _ => cur_opt,
+                };
+                self.sel_state.select(Some(req_opt));
+            }
+            None => self.sel_state.select(Some(0)),
+        }
+    }
+    pub fn set_qn(&mut self, qn: &'q Question) {
+        self.qn = Some(qn);
     }
     pub fn get_guidelines() -> Vec<&'static str> {
         vec![
@@ -131,6 +164,12 @@ pub fn run_app<B: Backend>(
                 }
                 KeyCode::Char('h') | KeyCode::Left => app.change_state(InputDirection::Left),
                 KeyCode::Char('l') | KeyCode::Right => app.change_state(InputDirection::Right),
+                KeyCode::Char('k') | KeyCode::Up if app.app_state == AppState::Qu1z => {
+                    app.set_opt(InputDirection::Up)
+                }
+                KeyCode::Char('j') | KeyCode::Down if app.app_state == AppState::Qu1z => {
+                    app.set_opt(InputDirection::Down)
+                }
                 _ => {}
             };
         };

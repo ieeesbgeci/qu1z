@@ -170,14 +170,56 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
     });
 }
 pub fn qu1z_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
-    let block = Block::default()
-        .title("Quiz Starts here")
-        .borders(Borders::ALL);
-    f.render_widget(block, div);
+    let quiz_divs = Layout::default()
+        .constraints([
+            Constraint::Percentage(25),
+            Constraint::Percentage(55),
+            Constraint::Percentage(25),
+        ])
+        .horizontal_margin(40)
+        .split(div);
+    //qu1z border
+    f.render_widget(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Red))
+            .title("Qu1z")
+            .border_type(BorderType::Thick),
+        div,
+    );
+    //questionbox border
+    let question_box = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .title(format!("[ Qn. {} ]", app.qn.expect("Expected Qn ").qno));
+
+    f.render_widget(question_box, quiz_divs[1]);
+    let qn_layout = Layout::default()
+        .constraints([
+            Constraint::Percentage(20),
+            Constraint::Percentage(8),
+            Constraint::Percentage(72),
+        ])
+        .margin(2)
+        .split(quiz_divs[1]);
+    //Qn :
+    let qn = Paragraph::new(format!(
+        "Qn.{}",
+        app.qn.expect("Expected Question").qn.as_str()
+    ))
+    .block(Block::default().borders(Borders::NONE));
+    f.render_widget(qn, qn_layout[0]);
+    //options :
+    // let opts = app.qn.opt;
+    // f.render_stateful_widget()
 }
 pub fn explore_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
-    let block = Block::default()
-        .title("Explore More ")
-        .borders(Borders::ALL);
-    f.render_widget(block, div);
+    f.render_widget(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Red))
+            .title("Explore more")
+            .border_type(BorderType::Plain),
+        div,
+    );
 }
