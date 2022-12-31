@@ -1,4 +1,4 @@
-# VQu1z⚡ (WiP)
+# VQu1z (WiP)
 
 **VQu1z** 
  is a TUI Quiz application which helps to conduction mcq Quiz . 
