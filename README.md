@@ -14,7 +14,7 @@ Vqu1z consists of :
         - Guidelines
 <br>
 
-![Home](assets/img1.png)
+![Home](assets/vq_1.png)
 
 - **Quiz Page**
 
@@ -23,7 +23,7 @@ Vqu1z consists of :
     - after end of Quiz Score is provided.
 <br>
 
-![Quiz](assets/img2.png)
+![Quiz](assets/vq_2.png)
 
 - **Explore Page**
     - displays info and descriptions related to event i.e leaderboards, or info on other events etc.
