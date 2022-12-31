@@ -1,11 +1,11 @@
-# VQu1z (WiP)
+# Qu1z (WiP)
 
-**VQu1z** 
+**Qu1z** 
  is a TUI Quiz application which helps to conduction mcq Quiz . 
 <br>
-Vqu1z consists of : 
--  Vqu1z server where the qns along with answers are uploaded to DB.
-- Vqu1z TUI client consists of  
+qu1z consists of : 
+-  qu1z server where the qns along with answers are uploaded to DB.
+- qu1z TUI client consists of  
 
     - **Home Page**
 
