@@ -1,6 +1,7 @@
 use std::{error::Error as Err, time::Duration};
 mod app;
 mod ui;
+use app::models::Question;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture, Event},
     execute,
@@ -17,7 +18,7 @@ fn main() -> Result<(), Box<dyn Err>> {
     let t_rate = Duration::from_millis(250);
     let name = String::from("vazha");
     let qn_str = std::fs::read_to_string("test.json")?;
-    let qn = serde_json::from_str(&qn_str)?;
+    let qn: Question = serde_json::from_str(&qn_str)?;
     let mut app = App::new(&name);
     app.set_qn(&qn);
     run_app(&mut term, app, t_rate)?;

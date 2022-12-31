@@ -7,6 +7,8 @@ use tui::{
     Frame,
 };
 
+use crate::app::models::Question;
+
 use super::app::App;
 
 //Newtype Guidelines Div for space btw guideline rules
@@ -169,14 +171,15 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
         f.render_widget(guide_lines[i].clone(), guide_area[i]);
     });
 }
-pub fn qu1z_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
+pub fn qu1z_ui<B: Backend>(f: &mut Frame<B>, app: &mut App, div: Rect) {
     let quiz_divs = Layout::default()
         .constraints([
             Constraint::Percentage(25),
             Constraint::Percentage(55),
+            Constraint::Percentage(8),
             Constraint::Percentage(25),
         ])
-        .horizontal_margin(40)
+        .horizontal_margin(30)
         .split(div);
     //qu1z border
     f.render_widget(
@@ -191,7 +194,7 @@ pub fn qu1z_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
     let question_box = Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .title(format!("[ Qn. {} ]", app.qn.expect("Expected Qn ").qno));
+        .title(format!("[ Qn. {} ]", app.qn.map_or(0, |qn| qn.qno)));
 
     f.render_widget(question_box, quiz_divs[1]);
     let qn_layout = Layout::default()
@@ -205,13 +208,40 @@ pub fn qu1z_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
     //Qn :
     let qn = Paragraph::new(format!(
         "Qn.{}",
-        app.qn.expect("Expected Question").qn.as_str()
+        app.qn.map_or("No Qn Found : )", |qn| qn.qn.as_str())
     ))
     .block(Block::default().borders(Borders::NONE));
     f.render_widget(qn, qn_layout[0]);
     //options :
-    // let opts = app.qn.opt;
-    // f.render_stateful_widget()
+    let opts = app
+        .qn
+        .map_or(vec!["No", "Valid", "Options", "Found"], |qn| {
+            qn.opt.iter().map(|o| o.as_str()).collect::<Vec<&str>>()
+        });
+    let opt_style = Style::default().fg(Color::Green);
+    let hl_style = Style::default().fg(Color::Red);
+    let opt_items: Vec<ListItem> = opts
+        .iter()
+        .enumerate()
+        .map(|(i, opt)| ListItem::new(Span::styled(format!("{}.{}", i + 1, *opt), opt_style)))
+        .collect();
+    let opt_list = List::new(opt_items)
+        .highlight_style(hl_style)
+        .highlight_symbol(">>");
+    f.render_stateful_widget(
+        opt_list,
+        qn_layout[2].inner(&Margin {
+            horizontal: 22,
+            vertical: 0,
+        }),
+        &mut app.sel_state,
+    );
+    let footer = Paragraph::new(Span::styled(
+        "* Use j,k/ArrowKeys to navigate opts & SPACE to confirm selection.",
+        Style::default().fg(Color::White),
+    ))
+    .block(Block::default().borders(Borders::NONE));
+    f.render_widget(footer, quiz_divs[2]);
 }
 pub fn explore_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
     f.render_widget(

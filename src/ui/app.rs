@@ -191,8 +191,8 @@ pub fn draw_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     f.render_widget(tabs, div[0]);
     use AppState::*;
     match app.app_state {
-        Home => home_ui(f, &app, div[1]),
-        Qu1z => qu1z_ui(f, &app, div[1]),
-        Explore => explore_ui(f, &app, div[1]),
+        Home => home_ui(f, app, div[1]),
+        Qu1z => qu1z_ui(f, app, div[1]),
+        Explore => explore_ui(f, app, div[1]),
     };
 }
