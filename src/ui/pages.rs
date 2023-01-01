@@ -168,7 +168,7 @@ pub fn home_ui<B: Backend>(f: &mut Frame<B>, app: &App, div: Rect) {
     .into_iter()
     .collect::<Vec<Rect>>();
     (0..6).for_each(|i| {
-        f.render_widget(guide_lines[i].clone(), guide_area[i]);
+        f.render_widget(guide_lines[i].to_owned(), guide_area[i]);
     });
 }
 pub fn qu1z_ui<B: Backend>(f: &mut Frame<B>, app: &mut App, div: Rect) {
